@@ -5,6 +5,7 @@ namespace Money;
 use Money\Calculator\BcMathCalculator;
 use Money\Calculator\GmpCalculator;
 use Money\Calculator\PhpCalculator;
+use Money\Currencies\ISOCurrencies;
 
 /**
  * Money Value Object.
@@ -76,6 +77,35 @@ final class Money implements \JsonSerializable
 
         $this->amount = (string) $amount;
         $this->currency = $currency;
+    }
+
+    /**
+     * Return new money instance from string value
+     *
+     * @access public static
+     * @param string $amount
+     * @param \Money\Currency $currency
+     * @return \self
+     */
+    public static function fromString(string $amount, Currency $currency)
+    {
+        $iso = new ISOCurrencies;
+
+        return new self(
+            intval(
+                round(
+                    100 *
+                    round(
+                        $amount,
+                        $iso->subunitFor($currency),
+                        PHP_ROUND_HALF_UP
+                    ),
+                    0,
+                    PHP_ROUND_HALF_UP
+                )
+            ),
+            $currency
+        );
     }
 
     /**
